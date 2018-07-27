@@ -1,7 +1,7 @@
 # MyDiary-v1
 It is a restful API to help with a database using endpoints.
 
-## H2DESCRIPTION
+## DESCRIPTION
 The required endpoints are set to do the following:
     Post a new entry to my diary.
     Fetch a single entry from my diary.
@@ -9,13 +9,13 @@ The required endpoints are set to do the following:
     Update an entry in my diary.
     Delete an entry from my diary.
 
-## H2REQUIREMENTS
+## REQUIREMENTS
 The minimum requirements to run this API include:
     POSTMAN, or browser -> to test the endpoints.
     PYTHON -> programming language of choice.
     PIP 
 
-## H2RUNNING THE API
+## RUNNING THE API
 Clone this repository.
 Navigate to the project folder.
 Activate the virtual environment ```source env/bin/activate```
