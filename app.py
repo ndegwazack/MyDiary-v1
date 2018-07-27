@@ -1,9 +1,17 @@
 from flask import Flask, request
 from flask_restplus import Api, Resource, fields
+from functools import wraps
 
 #Instantiate flask app
 app = Flask(__name__)
-api = Api(app, version='v1', title='My Diary API', description='An API for a Diary')
+auth = {
+    'apikey' : {
+        'type' : 'apiKey',
+        'in' : 'header',
+        'name' : 'Api-Key'
+    }
+}
+api = Api(app, authorizations=auth, version='v1', title='My Diary API', description='An API for a Diary')
 
 diary_entry = api.model("My Diary", {
     'Id' : fields.Integer(description="The unique key of diary entry"),
@@ -21,8 +29,36 @@ parser = api.parser()
 parser.add_argument('Title', type=str, required=True, location='form')
 parser.add_argument('Story', type=str, required=True, location='form')
 
-@api.route('/mydiary/API/v1/entries')
+def require_token(f):
+    '''
+    to access endpoints one must have an authentication key
+    '''
+    @wraps(f)
+    def authenticate(*args, **kwargs):
+        '''
+        define authentication here
+        '''
+        
+        token = None
+
+        if 'Api-Key' in request.headers:
+            token = request.headers['Api-Key']
+
+        if not token:
+            return{'message' : 'no token entered'}, 401
+
+        if token != 'pass':
+            return{'message' : 'Invalid token'}, 401
+
+        print('Token: {}'.format(token))
+        return f(*args, **kwargs)
+
+    return authenticate 
+
+@api.route('/MyDiary/api/v1/entries')
 class Diary(Resource):
+    @api.doc(security = 'apikey')
+    @require_token
     @api.marshal_with(diary_entry, envelope='Entries')
     def get(self):
         '''
@@ -41,8 +77,10 @@ class Diary(Resource):
         diary_entries.append(new_entry)
         return {'result': 'Entry successfully added to diary'}, 201
 
-@api.route('/mydiary/API/v1/entries/<int:Id>')
+@api.route('/MyDiary/api/v1/entries/<int:Id>')
 class Entry(Resource):
+    @api.doc(security = 'apikey')
+    @require_token
     @api.marshal_with(diary_entry, envelope='Entries')
     def get(self, Id):
 
@@ -51,7 +89,6 @@ class Entry(Resource):
         """
         result = [entry for entry in diary_entries if entry['Id'] == Id]
         return result
-
 
     @api.doc(parser=parser)
     def put(self, Id):
@@ -73,7 +110,7 @@ class Entry(Resource):
         for index, entry in enumerate(diary_entries):
             if entry['Id'] == Id:
                 del diary_entries[index]
-            return{"response" : "Entry deleted successfully"}, 204
+            return{'response' : 'Entry deleted successfully'}, 204
         return None, 204
 
 if __name__ == '__main__':
