@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/NDEGWA-ZACK/MyDiary-v1/badge.svg?branch=master)](https://coveralls.io/github/NDEGWA-ZACK/MyDiary-v1?branch=master)
+
 # MyDiary-v1
 It is a restful API to help with a database using endpoints.
 
